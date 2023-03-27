@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>カラス撃退</title>
+</head>
+<body>
+    <div style="display:flex;"><div>周波数：</div><div id="hz_label">440Hz</div></div>
+<input type="range" value="440" max="12000" min="10" step="1" id="hz" style="max-width:100%;width:600px;"><br>
+<div style="display:flex;"><div>音量：</div><div id="vol_label">5</div></div>
+<input type="range" value="5" max="100" min="1" step="1" id="vol" style="max-width:100%;width:600px;"><br>
+<a onclick="setHz(1000)" style="cursor:pointer;">1000Hz</a>
+<a onclick="setHz(2000)" style="cursor:pointer;">2000Hz</a>
+<a onclick="setHz(4000)" style="cursor:pointer;">4000Hz</a>
+<a onclick="setHz(8000)" style="cursor:pointer;">8000Hz</a>
+<a onclick="setHz(12000)" style="cursor:pointer;">12000Hz</a>
+<br>
+<a onclick="setHz(261)" style="cursor:pointer;">ド</a>
+<a onclick="setHz(294)" style="cursor:pointer;">レ</a>
+<a onclick="setHz(330)" style="cursor:pointer;">ミ</a>
+<a onclick="setHz(349)" style="cursor:pointer;">ファ</a>
+<a onclick="setHz(392)" style="cursor:pointer;">ソ</a>
+<a onclick="setHz(440)" style="cursor:pointer;">ラ</a>
+<a onclick="setHz(494)" style="cursor:pointer;">シ</a>
+<a onclick="setHz(522)" style="cursor:pointer;">ド</a>
+<br>
+<a onclick="" style="cursor:pointer;" id="play">音を鳴らす</a>
+<a onclick="" style="cursor:pointer;" id="stop">音を止める</a>
+<script>
+  var audioCtx=null,oscillator=null,gainNode=null,vol=5;
+  window.addEventListener('DOMContentLoaded',function(){
+
+    //周波数変更
+    document.getElementById('hz').addEventListener('input',function(){
+      document.getElementById('hz_label').innerHTML=document.getElementById('hz').value+'Hz';
+      if(oscillator!=null){
+        let hz=document.getElementById('hz').value;
+        oscillator.frequency.setValueAtTime(hz, audioCtx.currentTime);
+      }
+    });
+    //音量変更
+    document.getElementById('vol').addEventListener('input',function(){
+      document.getElementById('vol_label').innerHTML=document.getElementById('vol').value;
+      vol=document.getElementById('vol').value;
+      if(gainNode!=null){
+        gainNode.gain.value=vol/100;
+      }
+    });
+    //音を鳴らす
+    document.getElementById('play').addEventListener('click',function(){
+      if(audioCtx==null){
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if(gainNode==null){
+        gainNode = audioCtx.createGain();
+        gainNode.gain.value=vol/100;
+      }
+      if(oscillator==null){
+        oscillator = audioCtx.createOscillator();
+        oscillator.type = 'square';
+        let hz=document.getElementById('hz').value;
+        oscillator.frequency.setValueAtTime(hz, audioCtx.currentTime);
+        oscillator.connect(gainNode).connect(audioCtx.destination);
+        oscillator.start();
+      }
+    });
+    //音を止める
+    document.getElementById('stop').addEventListener('click',function(){
+      if(oscillator!==null){
+        oscillator.stop();
+        oscillator=null;
+      }
+    });
+  });
+  function setHz(hz){
+    document.getElementById('hz').value=hz;
+    document.getElementById('hz_label').innerHTML=hz+'Hz';
+      if(oscillator!=null){
+        let hz=document.getElementById('hz').value;
+        oscillator.frequency.setValueAtTime(hz, audioCtx.currentTime);
+      }
+  }
+</script>
+</body>
+</html>
